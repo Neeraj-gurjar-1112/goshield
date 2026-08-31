@@ -1,0 +1,103 @@
+# GoShield stack: dashboard, API, PostgreSQL, Redis.
+#
+# Host ports are overridable because a developer machine often already runs
+# something on 3000/5432. Inside the compose network the ports are always the
+# defaults.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: goshield-postgres
+    environment:
+      POSTGRES_USER: goshield
+      POSTGRES_PASSWORD: goshield
+      POSTGRES_DB: goshield
+    ports:
+      # 5433 on the host: this machine already runs a local PostgreSQL on 5432.
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U goshield -d goshield"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: goshield-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # One-shot migration runner: the API only starts once this exits cleanly.
+  migrate:
+    image: migrate/migrate:v4.18.1
+    container_name: goshield-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/migrations:/migrations:ro
+    command:
+      - "-path=/migrations"
+      - "-database=postgres://goshield:goshield@postgres:5432/goshield?sslmode=disable"
+      - "up"
+    restart: on-failure
+
+  backend:
+    build:
+      context: ./backend
+    container_name: goshield-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      APP_PORT: "8080"
+      DATABASE_URL: postgres://goshield:goshield@postgres:5432/goshield?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      WORKER_COUNT: ${WORKER_COUNT:-10}
+      QUEUE_SIZE: ${QUEUE_SIZE:-100}
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-3600}
+      RATE_LIMIT: ${RATE_LIMIT:-100}
+      RATE_LIMIT_WINDOW_SECONDS: ${RATE_LIMIT_WINDOW_SECONDS:-60}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:5173}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    healthcheck:
+      # The distroless image has no shell or curl, so the binary checks itself.
+      test: ["CMD", "/server", "-healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080/api/v1}
+    container_name: goshield-frontend
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/ || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:

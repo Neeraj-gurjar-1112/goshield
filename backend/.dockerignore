@@ -1,0 +1,4 @@
+.gotmp/
+bin/
+Dockerfile
+Makefile

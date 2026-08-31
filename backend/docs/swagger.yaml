@@ -1,0 +1,381 @@
+basePath: /
+definitions:
+  github_com_neerajgurjar_goshield_backend_internal_model.RiskLevel:
+    enum:
+    - SAFE
+    - LOW
+    - MEDIUM
+    - HIGH
+    type: string
+    x-enum-comments:
+      RiskLevelHigh: 76-100
+      RiskLevelLow: 21-50
+      RiskLevelMedium: 51-75
+      RiskLevelSafe: 0-20
+    x-enum-descriptions:
+    - 0-20
+    - 21-50
+    - 51-75
+    - 76-100
+    x-enum-varnames:
+    - RiskLevelSafe
+    - RiskLevelLow
+    - RiskLevelMedium
+    - RiskLevelHigh
+  github_com_neerajgurjar_goshield_backend_internal_model.Scan:
+    properties:
+      cached:
+        example: false
+        type: boolean
+      created_at:
+        example: "2026-08-31T10:00:00Z"
+        type: string
+      domain:
+        example: example.com
+        type: string
+      id:
+        example: 8f14e45f-ea2b-4c5d-9f1a-0d1b2c3d4e5f
+        type: string
+      normalized_url:
+        example: https://example.com/login
+        type: string
+      protocol:
+        example: https
+        type: string
+      reasons:
+        example:
+        - 'Contains suspicious keyword: login'
+        items:
+          type: string
+        type: array
+      risk_level:
+        allOf:
+        - $ref: '#/definitions/github_com_neerajgurjar_goshield_backend_internal_model.RiskLevel'
+        enum:
+        - SAFE
+        - LOW
+        - MEDIUM
+        - HIGH
+        example: SAFE
+      risk_score:
+        example: 10
+        type: integer
+      safe:
+        example: true
+        type: boolean
+      scan_time_ms:
+        example: 4
+        type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/github_com_neerajgurjar_goshield_backend_internal_model.Status'
+        enum:
+        - SAFE
+        - SUSPICIOUS
+        - BLOCKED
+        example: SAFE
+      url:
+        example: https://example.com/login
+        type: string
+    type: object
+  github_com_neerajgurjar_goshield_backend_internal_model.Status:
+    enum:
+    - SAFE
+    - SUSPICIOUS
+    - BLOCKED
+    type: string
+    x-enum-comments:
+      StatusBlocked: '>= 76'
+      StatusSafe: score <= 50
+      StatusSuspicious: 51-75
+    x-enum-descriptions:
+    - score <= 50
+    - 51-75
+    - '>= 76'
+    x-enum-varnames:
+    - StatusSafe
+    - StatusSuspicious
+    - StatusBlocked
+  internal_handler.BulkScanRequest:
+    properties:
+      urls:
+        example:
+        - https://example.com
+        - http://free-money-login.xyz/verify
+        items:
+          type: string
+        type: array
+    type: object
+  internal_handler.BulkScanResponse:
+    properties:
+      duration_ms:
+        type: integer
+      results:
+        items: {}
+        type: array
+      total:
+        type: integer
+    type: object
+  internal_handler.ErrorBody:
+    properties:
+      code:
+        example: INVALID_URL
+        type: string
+      message:
+        example: The provided URL is invalid
+        type: string
+    type: object
+  internal_handler.ErrorEnvelope:
+    properties:
+      error:
+        $ref: '#/definitions/internal_handler.ErrorBody'
+    type: object
+  internal_handler.HealthResponse:
+    properties:
+      service:
+        example: goshield
+        type: string
+      status:
+        example: ok
+        type: string
+      version:
+        example: 1.0.0
+        type: string
+    type: object
+  internal_handler.ListScansResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_neerajgurjar_goshield_backend_internal_model.Scan'
+        type: array
+      pagination:
+        $ref: '#/definitions/internal_handler.Pagination'
+    type: object
+  internal_handler.Pagination:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  internal_handler.ScanRequest:
+    properties:
+      url:
+        example: http://free-money-login.xyz/verify
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: |-
+    Offline URL security scanner. Every verdict is derived from the
+    URL string alone: the service never sends traffic to the URL it is
+    scanning, which keeps scans fast and rules out SSRF.
+    Scans are cached in Redis and stored in PostgreSQL.
+  title: GoShield API
+  version: 1.0.0
+paths:
+  /api/v1/scan:
+    post:
+      consumes:
+      - application/json
+      description: Analyses a URL offline (the scanner never sends traffic to it)
+        and returns a risk score, level and the reasons behind it. Repeat scans of
+        the same normalized URL are served from the Redis cache.
+      parameters:
+      - description: URL to scan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.ScanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_neerajgurjar_goshield_backend_internal_model.Scan'
+        "400":
+          description: INVALID_URL or INVALID_REQUEST
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+        "429":
+          description: RATE_LIMIT_EXCEEDED
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+        "500":
+          description: INTERNAL_SERVER_ERROR
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+      summary: Scan a URL
+      tags:
+      - scans
+  /api/v1/scans:
+    get:
+      description: Returns scans newest first, with optional filtering and paging.
+      parameters:
+      - description: Page number, 1-based
+        in: query
+        name: page
+        type: integer
+      - description: Page size, max 100
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by risk level
+        enum:
+        - SAFE
+        - LOW
+        - MEDIUM
+        - HIGH
+        in: query
+        name: risk_level
+        type: string
+      - description: Filter by status
+        enum:
+        - SAFE
+        - SUSPICIOUS
+        - BLOCKED
+        in: query
+        name: status
+        type: string
+      - description: Filter by exact domain
+        in: query
+        name: domain
+        type: string
+      - description: Only scans created at or after this RFC3339 timestamp
+        in: query
+        name: from
+        type: string
+      - description: Only scans created at or before this RFC3339 timestamp
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handler.ListScansResponse'
+        "400":
+          description: INVALID_REQUEST
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+        "429":
+          description: RATE_LIMIT_EXCEEDED
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+        "500":
+          description: INTERNAL_SERVER_ERROR
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+      summary: List scan history
+      tags:
+      - scans
+  /api/v1/scans/{id}:
+    get:
+      description: Returns a single previously stored scan.
+      parameters:
+      - description: Scan id (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_neerajgurjar_goshield_backend_internal_model.Scan'
+        "404":
+          description: SCAN_NOT_FOUND
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+        "429":
+          description: RATE_LIMIT_EXCEEDED
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+        "500":
+          description: INTERNAL_SERVER_ERROR
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+      summary: Get a scan by id
+      tags:
+      - scans
+  /api/v1/scans/bulk:
+    post:
+      consumes:
+      - application/json
+      description: Scans a batch of URLs through a bounded worker pool. Results come
+        back in input order; an entry that could not be scanned carries an error object
+        instead of a scan, so one bad URL does not fail the batch.
+      parameters:
+      - description: URLs to scan, at most 100
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.BulkScanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handler.BulkScanResponse'
+        "400":
+          description: INVALID_REQUEST
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+        "429":
+          description: RATE_LIMIT_EXCEEDED
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+        "500":
+          description: INTERNAL_SERVER_ERROR
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorEnvelope'
+      summary: Scan up to 100 URLs
+      tags:
+      - scans
+  /health:
+    get:
+      description: Liveness probe for the service.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handler.HealthResponse'
+      summary: Health check
+      tags:
+      - system
+  /metrics:
+    get:
+      description: In-memory counters in Prometheus text format.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: goshield_scans_total 1250
+          schema:
+            type: string
+      summary: Service metrics
+      tags:
+      - system
+schemes:
+- http
+swagger: "2.0"
+tags:
+- description: URL scanning and scan history
+  name: scans
+- description: Health and metrics
+  name: system

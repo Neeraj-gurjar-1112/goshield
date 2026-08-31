@@ -1,0 +1,16 @@
+# Go
+backend/bin/
+backend/.gotmp/
+*.exe
+
+# Env
+.env
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
