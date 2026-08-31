@@ -43,7 +43,7 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./backend/migrations:/migrations:ro
+      - ./migrations:/migrations:ro
     command:
       - "-path=/migrations"
       - "-database=postgres://goshield:goshield@postgres:5432/goshield?sslmode=disable"
@@ -52,7 +52,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
     container_name: goshield-backend
     depends_on:
       postgres:

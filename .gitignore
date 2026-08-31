@@ -1,6 +1,6 @@
 # Go
-backend/bin/
-backend/.gotmp/
+bin/
+.gotmp/
 *.exe
 
 # Env

@@ -3,7 +3,7 @@ package security
 import (
 	"fmt"
 
-	"github.com/neerajgurjar/goshield/backend/internal/model"
+	"github.com/neerajgurjar/goshield/internal/model"
 )
 
 // Signal weights. Each fired signal adds its points to the risk score, which is

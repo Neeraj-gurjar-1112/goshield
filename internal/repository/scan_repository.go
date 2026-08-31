@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/neerajgurjar/goshield/backend/internal/model"
+	"github.com/neerajgurjar/goshield/internal/model"
 )
 
 // ErrNotFound is returned when a lookup matches no row.

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/neerajgurjar/goshield/backend/internal/security"
-	"github.com/neerajgurjar/goshield/backend/internal/service"
+	"github.com/neerajgurjar/goshield/internal/security"
+	"github.com/neerajgurjar/goshield/internal/service"
 )
 
 // fakeBulk stands in for the bulk scan service.

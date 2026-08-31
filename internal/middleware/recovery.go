@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/neerajgurjar/goshield/backend/internal/handler"
+	"github.com/neerajgurjar/goshield/internal/handler"
 )
 
 // Recovery turns a panic into a 500 error envelope. The stack trace goes to the

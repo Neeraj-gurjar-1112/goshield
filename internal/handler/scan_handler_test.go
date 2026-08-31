@@ -12,9 +12,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
-	"github.com/neerajgurjar/goshield/backend/internal/model"
-	"github.com/neerajgurjar/goshield/backend/internal/security"
-	"github.com/neerajgurjar/goshield/backend/internal/service"
+	"github.com/neerajgurjar/goshield/internal/model"
+	"github.com/neerajgurjar/goshield/internal/security"
+	"github.com/neerajgurjar/goshield/internal/service"
 )
 
 // fakeScanner stands in for the scan service.

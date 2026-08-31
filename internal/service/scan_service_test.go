@@ -9,9 +9,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/neerajgurjar/goshield/backend/internal/model"
-	"github.com/neerajgurjar/goshield/backend/internal/repository"
-	"github.com/neerajgurjar/goshield/backend/internal/security"
+	"github.com/neerajgurjar/goshield/internal/model"
+	"github.com/neerajgurjar/goshield/internal/repository"
+	"github.com/neerajgurjar/goshield/internal/security"
 )
 
 // fakeRepo is an in-memory stand-in for the PostgreSQL repository. The real

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/neerajgurjar/goshield/backend/internal/security"
+	"github.com/neerajgurjar/goshield/internal/security"
 )
 
 func newBulkFixture(t *testing.T) (*BulkService, *fakeRepo, *fakeCache) {

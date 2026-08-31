@@ -16,7 +16,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/neerajgurjar/goshield/backend/internal/model"
+	"github.com/neerajgurjar/goshield/internal/model"
 )
 
 // keyPrefix namespaces every key this service owns in Redis.

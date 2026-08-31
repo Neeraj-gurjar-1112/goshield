@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/neerajgurjar/goshield/backend/internal/model"
+	"github.com/neerajgurjar/goshield/internal/model"
 )
 
 // assess parses and scores a URL, failing the test if the URL does not parse.

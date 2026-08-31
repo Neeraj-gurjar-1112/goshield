@@ -1,4 +1,4 @@
-module github.com/neerajgurjar/goshield/backend
+module github.com/neerajgurjar/goshield
 
 go 1.25.0
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/neerajgurjar/goshield/backend/internal/model"
-	"github.com/neerajgurjar/goshield/backend/internal/worker"
+	"github.com/neerajgurjar/goshield/internal/model"
+	"github.com/neerajgurjar/goshield/internal/worker"
 )
 
 // MaxBulkURLs is the largest batch a single bulk request may carry.

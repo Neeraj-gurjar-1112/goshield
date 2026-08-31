@@ -10,10 +10,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/neerajgurjar/goshield/backend/internal/metrics"
-	"github.com/neerajgurjar/goshield/backend/internal/model"
-	"github.com/neerajgurjar/goshield/backend/internal/repository"
-	"github.com/neerajgurjar/goshield/backend/internal/security"
+	"github.com/neerajgurjar/goshield/internal/metrics"
+	"github.com/neerajgurjar/goshield/internal/model"
+	"github.com/neerajgurjar/goshield/internal/repository"
+	"github.com/neerajgurjar/goshield/internal/security"
 )
 
 // ErrScanNotFound is returned when a scan id matches nothing.

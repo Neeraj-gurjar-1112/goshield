@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/neerajgurjar/goshield/backend/internal/metrics"
+	"github.com/neerajgurjar/goshield/internal/metrics"
 )
 
 // MetricsHandler serves the plain-text metrics endpoint.

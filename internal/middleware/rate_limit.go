@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/time/rate"
 
-	"github.com/neerajgurjar/goshield/backend/internal/handler"
+	"github.com/neerajgurjar/goshield/internal/handler"
 )
 
 // idleTTL is how long an unused per-IP bucket is kept before it is swept, so a

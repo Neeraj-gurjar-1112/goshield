@@ -31,13 +31,13 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
-	_ "github.com/neerajgurjar/goshield/backend/docs" // generated swagger spec
-	"github.com/neerajgurjar/goshield/backend/internal/cache"
-	"github.com/neerajgurjar/goshield/backend/internal/config"
-	"github.com/neerajgurjar/goshield/backend/internal/handler"
-	"github.com/neerajgurjar/goshield/backend/internal/middleware"
-	"github.com/neerajgurjar/goshield/backend/internal/repository"
-	"github.com/neerajgurjar/goshield/backend/internal/service"
+	_ "github.com/neerajgurjar/goshield/docs" // generated swagger spec
+	"github.com/neerajgurjar/goshield/internal/cache"
+	"github.com/neerajgurjar/goshield/internal/config"
+	"github.com/neerajgurjar/goshield/internal/handler"
+	"github.com/neerajgurjar/goshield/internal/middleware"
+	"github.com/neerajgurjar/goshield/internal/repository"
+	"github.com/neerajgurjar/goshield/internal/service"
 )
 
 const (
